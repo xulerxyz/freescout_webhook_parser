@@ -1,14 +1,27 @@
-# Ignore specific files
-README.md
-index.php
-test.php
+# Dependencies
+/vendor/
+composer.lock
+
+# IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+error_log
+
+# Cache
+*.cache
+.cache/
 
 # Common ignores
-.DS_Store
-.vscode/
-.idea/
-*.log
-vendor/
 node_modules/
 .env
 .env.local 

@@ -1,7 +1,7 @@
 {
-    "name": "nigel/freescout-webhook-parser",
+    "name": "nigeljaure/freescout-webhook-parser",
     "version": "1.0.0",
-    "description": "A PHP package for parsing FreeScout webhook payloads with configurable output formats",
+    "description": "A PHP library for parsing FreeScout webhook data with improved HTML cleaning and data validation",
     "type": "library",
     "license": "MIT",
     "autoload": {
