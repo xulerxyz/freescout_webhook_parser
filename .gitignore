@@ -1,0 +1,14 @@
+# Ignore specific files
+README.md
+index.php
+test.php
+
+# Common ignores
+.DS_Store
+.vscode/
+.idea/
+*.log
+vendor/
+node_modules/
+.env
+.env.local 
