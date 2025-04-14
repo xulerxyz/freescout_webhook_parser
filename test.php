@@ -1,11 +1,11 @@
 <?php
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once 'vendor/autoload.php';
 
 use Nigel\FreescoutWebhookParser\FreeScoutWebhookParser;
 
-// Test data
-$testData = '{
+// Real FreeScout webhook data
+$webhookData = '{
     "id": 36,
     "number": 36,
     "threadsCount": 0,
@@ -114,29 +114,32 @@ $testData = '{
 }';
 
 try {
-    // Create parser instance with test data
-    $parser = new FreeScoutWebhookParser($testData);
+    // Create parser instance with webhook data
+    $parser = new FreeScoutWebhookParser($webhookData);
     
-    // Test 1: Parse function with showAll=false (should return WebhookData object)
+    // Test 1: Parse function with showAll=false (should return WebhookMessageData object)
     echo "Test 1: Parse function with showAll=false\n";
     $result = $parser->parse(false);
-    echo json_encode($result, JSON_PRETTY_PRINT) . "\n\n";
+    
+    echo "Ticket ID: " . $result->getData()['id'] . "\n";
+    echo "Ticket Number: " . $result->getData()['number'] . "\n";
+    echo "Subject: " . $result->getSubject() . "\n";
+    echo "Preview: " . $result->getData()['preview'] . "\n";
+    echo "Status: " . $result->getStatus() . "\n";
+    echo "Type: " . $result->getType() . "\n";
+    echo "Customer Name: " . $result->getData()['customer']['firstName'] . "\n";
+    echo "Customer Email: " . $result->getData()['customer']['email'] . "\n";
+    echo "Created At: " . $result->getData()['createdAt'] . "\n";
+    echo "Thread Body: " . $result->getData()['_embedded']['threads'][0]['body'] . "\n";
+    echo "Custom Fields:\n";
+    print_r($result->getData()['customFields']);
+    echo "\n";
     
     // Test 2: Parse function with showAll=true (should return raw data)
     echo "Test 2: Parse function with showAll=true\n";
     $result = $parser->parse(true);
-    echo json_encode($result, JSON_PRETTY_PRINT) . "\n\n";
-    
-    // Test 3: Using interface methods
-    echo "Test 3: Using interface methods\n";
-    $webhookData = $parser->parse(false);
-    echo "Ticket ID: " . $webhookData->getTicketId() . "\n";
-    echo "Ticket Subject: " . $webhookData->getTicketSubject() . "\n";
-    echo "Customer Name: " . $webhookData->getCustomerName() . "\n";
-    echo "Customer Email: " . $webhookData->getCustomerEmail() . "\n";
-    echo "Thread Body: " . $webhookData->getThreadBody() . "\n";
-    echo "Custom Fields:\n";
-    print_r($webhookData->getCustomFields());
+    echo "Raw Data Structure:\n";
+    print_r($result);
     
 } catch (\Exception $e) {
     echo "Error: " . $e->getMessage() . "\n";

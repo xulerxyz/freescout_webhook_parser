@@ -1,7 +1,6 @@
 {
-    "name": "nigeljaure/freescout-webhook-parser",
-    "version": "1.0.0",
-    "description": "A PHP library for parsing FreeScout webhook data with improved HTML cleaning and data validation",
+    "name": "nigel/freescout-webhook-parser",
+    "description": "A PHP library for parsing FreeScout webhook data with HTML cleaning capabilities",
     "type": "library",
     "license": "MIT",
     "autoload": {
@@ -10,9 +9,11 @@
         }
     },
     "require": {
-        "php": "^8.1"
+        "php": "^8.0",
+        "ext-json": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.0"
-    }
+    },
+    "version": "1.0.2"
 }

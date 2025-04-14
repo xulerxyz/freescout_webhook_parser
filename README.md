@@ -1,24 +1,16 @@
 # FreeScout Webhook Parser
 
-A PHP package for parsing FreeScout webhook payloads with configurable output formats.
+A PHP library for parsing FreeScout webhook data with HTML cleaning capabilities.
 
 ## Features
 
-- Parse FreeScout webhook payloads
-- Two output formats: filtered (essential fields) or complete data
-- Type-safe data access through interface methods
-- JSON serialization support
-- Null-safe field access
-- Easy integration with any PHP application
-
-## Requirements
-
-- PHP 8.1 or higher
-- JSON extension
+- Parse FreeScout webhook data
+- Clean HTML content using HtmlCleaner
+- Support for both basic and extended data fields
+- Easy to use interface
+- Type-safe data access
 
 ## Installation
-
-Install via Composer:
 
 ```bash
 composer require nigel/freescout-webhook-parser
@@ -26,113 +18,102 @@ composer require nigel/freescout-webhook-parser
 
 ## Usage
 
-### 1. Basic Usage
+### Basic Usage
 
 ```php
 use Nigel\FreescoutWebhookParser\FreeScoutWebhookParser;
 
-// Initialize parser
-$parser = new FreeScoutWebhookParser();
+// Get webhook data
+$rawData = file_get_contents('php://input');
 
-// Parse webhook data (returns WebhookData object with essential fields)
-$webhookData = $parser->parse();
+// Create parser instance
+$parser = new FreeScoutWebhookParser($rawData);
 
-// Access data through interface methods
-$ticketId = $webhookData->getTicketId();
-$customerName = $webhookData->getCustomerName();
-$threadBody = $webhookData->getThreadBody();
+// Parse the data
+$result = $parser->parse();
+
+// Get basic fields
+$basicFields = $result->getBasicFields();
+
+// Get all fields
+$allFields = $result->getAllFields();
 ```
 
-### 2. Get Complete Data
+### Basic Fields
+
+The `getBasicFields()` method returns the most commonly used fields:
 
 ```php
-// Get all fields from the webhook
-$allData = $parser->parse(true);
+[
+    'subject' => string,
+    'body' => string,
+    'from' => string,
+    'to' => string,
+    'date' => string,
+    'type' => string,
+    'status' => string,
+    'customer' => [
+        'name' => string,
+        'email' => string
+    ],
+    'conversation_id' => string,
+    'thread_id' => string
+]
 ```
 
-### 3. Parse Custom JSON Data
+### All Fields
+
+The `getAllFields()` method returns all available fields:
 
 ```php
-// Parse specific JSON data
-$jsonData = '{"id": 36, "subject": "Test ticket", ...}';
-$parser = new FreeScoutWebhookParser($jsonData);
-$webhookData = $parser->parse();
+[
+    'subject' => string,
+    'body' => string,
+    'from' => string,
+    'to' => string,
+    'cc' => string,
+    'bcc' => string,
+    'date' => string,
+    'message_id' => string,
+    'in_reply_to' => string,
+    'references' => string,
+    'attachments' => array,
+    'headers' => array,
+    'custom_fields' => array,
+    'conversation_id' => string,
+    'thread_id' => string,
+    'type' => string,
+    'status' => string,
+    'customer' => [
+        'id' => string,
+        'name' => string,
+        'email' => string
+    ],
+    'mailbox' => [
+        'id' => string,
+        'name' => string
+    ],
+    'user' => [
+        'id' => string,
+        'name' => string,
+        'email' => string
+    ],
+    'dates' => [
+        'created_at' => string,
+        'updated_at' => string,
+        'deleted_at' => string
+    ],
+    'tags' => array,
+    'custom_data' => array,
+    'meta' => array
+]
 ```
 
-### 4. Available Methods
+## Requirements
 
-The WebhookData object provides the following methods:
-
-```php
-// Ticket information
-getTicketId(): ?int
-getTicketNumber(): ?int
-getTicketSubject(): ?string
-getTicketStatus(): ?string
-getTicketType(): ?string
-getTicketCreatedAt(): ?string
-
-// Customer information
-getCustomerId(): ?int
-getCustomerName(): ?string
-getCustomerEmail(): ?string
-
-// Thread information
-getThreadId(): ?int
-getThreadBody(): ?string
-getThreadType(): ?string
-
-// Other data
-getCustomFields(): array
-getRawData(): array
-```
-
-### 5. Output Format
-
-#### Filtered Data (Default)
-```json
-{
-    "ticket": {
-        "id": 36,
-        "number": 36,
-        "subject": "Problem with the flux capacitor",
-        "status": "active",
-        "type": "email",
-        "created_at": "2025-04-09T09:13:05Z"
-    },
-    "customer": {
-        "id": 27,
-        "name": "Marty",
-        "email": "mcfly_42@pm.me"
-    },
-    "thread": {
-        "id": 89,
-        "body": "Hi there is a problem with my flux capacitor...",
-        "type": "customer"
-    },
-    "custom_fields": [
-        {
-            "id": 1,
-            "name": "Priority",
-            "value": ""
-        }
-    ]
-}
-```
-
-## Error Handling
-
-The parser includes built-in error handling:
-
-```php
-try {
-    $webhookData = $parser->parse();
-} catch (\Exception $e) {
-    // Handle parsing errors
-    echo $e->getMessage();
-}
-```
+- PHP 8.0 or higher
+- Composer
 
 ## License
 
-MIT License 
+This project is licensed under the MIT License - see the LICENSE file for details. 

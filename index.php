@@ -8,12 +8,6 @@ use Nigel\FreescoutWebhookParser\FreeScoutWebhookParser;
  */
 
 // Load Composer's autoloader
-if (file_get_contents('php://input') === '') {
-    http_response_code(400);
-    echo json_encode(['error' => 'No data received']);
-    exit;
-}
-
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
 } else {
@@ -22,18 +16,35 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     exit;
 }
 
+// Set the response header
+header('Content-Type: application/json');
+
 try {
+    // Get raw input data
+    $rawData = file_get_contents('php://input');
+    
+    if (empty($rawData)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'No data received']);
+        exit;
+    }
+
     // Get showAll parameter from query string, default to false
     $showAll = isset($_GET['showAll']) ? filter_var($_GET['showAll'], FILTER_VALIDATE_BOOLEAN) : false;
     
-    $webhookParser = new FreeScoutWebhookParser();
-    $data = $webhookParser->parse($showAll);
+    // Create parser instance with raw data
+    $webhookParser = new FreeScoutWebhookParser($rawData);
+    $result = $webhookParser->parse();
     
-    // Set the response header
-    header('Content-Type: application/json');
-    
-    // Output the parsed data
-    echo json_encode($data, JSON_PRETTY_PRINT);
+    if (is_array($result) && isset($result['error'])) {
+        http_response_code(400);
+        echo json_encode($result);
+    } else {
+        echo json_encode([
+            'success' => true,
+            'data' => $showAll ? $result->getAllFields() : $result->getBasicFields()
+        ], JSON_PRETTY_PRINT);
+    }
 } catch (\Exception $e) {
     http_response_code(500);
     echo json_encode([
