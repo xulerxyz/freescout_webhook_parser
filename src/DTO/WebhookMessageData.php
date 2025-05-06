@@ -4,16 +4,21 @@ namespace Nigel\FreescoutWebhookParser\DTO;
 
 use Nigel\FreescoutWebhookParser\Interfaces\WebhookDataInterface;
 use Nigel\FreescoutWebhookParser\Helpers\HtmlCleaner;
+use Nigel\FreescoutWebhookParser\DTO\Assignee;
 
 class WebhookMessageData implements WebhookDataInterface
 {
     private array $data;
     private HtmlCleaner $htmlCleaner;
+    private ?Assignee $assignee = null;
 
     public function __construct(array $data)
     {
         $this->htmlCleaner = new HtmlCleaner();
         $this->data = $data;
+        if (isset($data['assignee'])) {
+            $this->assignee = new Assignee($data['assignee']);
+        }
     }
 
     public function getData(): array
@@ -35,6 +40,11 @@ class WebhookMessageData implements WebhookDataInterface
                 'name' => $this->getCustomerName(),
                 'email' => $this->getCustomerEmail()
             ],
+            'assignee' => $this->assignee ? [
+                'id' => $this->assignee->getId(),
+                'name' => $this->assignee->getFullName(),
+                'email' => $this->assignee->getEmail()
+            ] : null,
             'conversation_id' => $this->getConversationId(),
             'thread_id' => $this->getThreadId()
         ];
@@ -42,7 +52,7 @@ class WebhookMessageData implements WebhookDataInterface
 
     public function getAllFields(): array
     {
-        return [
+        $fields = [
             'subject' => $this->getSubject(),
             'body' => $this->getBody(),
             'from' => $this->getFrom(),
@@ -74,6 +84,12 @@ class WebhookMessageData implements WebhookDataInterface
                 'name' => $this->getUserName(),
                 'email' => $this->getUserEmail()
             ],
+            'assignee' => $this->assignee ? [
+                'id' => $this->assignee->getId(),
+                'type' => $this->assignee->getType(),
+                'name' => $this->assignee->getFullName(),
+                'email' => $this->assignee->getEmail()
+            ] : null,
             'dates' => [
                 'created_at' => $this->getCreatedAt(),
                 'updated_at' => $this->getUpdatedAt(),
@@ -83,6 +99,8 @@ class WebhookMessageData implements WebhookDataInterface
             'custom_data' => $this->getCustomData(),
             'meta' => $this->getMeta()
         ];
+
+        return $fields;
     }
 
     public function getBody(): string
@@ -238,5 +256,10 @@ class WebhookMessageData implements WebhookDataInterface
     public function getMeta(): array
     {
         return [];
+    }
+
+    public function getAssignee(): ?Assignee
+    {
+        return $this->assignee;
     }
 } 
